@@ -8,6 +8,12 @@ This repo is **planning-stage** — it contains only `Tenfold PRD.md` and `Tenfo
 
 Remote: https://github.com/0xSardius/tenfold.git
 
+## Session workflow
+
+- **At session start:** read `docs/CHECKPOINT.md` and recent git history (`git log --oneline -10`) to resume context.
+- **At session end / natural checkpoints:** update `docs/CHECKPOINT.md` (current state, what's done, what's next, open decisions), commit, and push. Commit after each completed milestone — milestones are the natural checkpoints for this project.
+- The checkpoint should always name the **current PRD §10 milestone** and its verification status (each milestone must be confirmed running before the next begins).
+
 ## What is being built
 
 **Tenfold**: a daily practice app based on James Altucher's "10 ideas a day" method. The user writes a list of ideas to a prompt; an AI coach reflects back *how their idea-generation muscle is performing* (divergent-thinking metrics) and **never grades idea quality**. Ideas accumulate in a private, compounding archive. It's a web-first app that also renders as a Mini App across Base App and Farcaster clients from a single codebase.
