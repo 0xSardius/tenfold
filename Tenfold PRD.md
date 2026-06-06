@@ -38,21 +38,20 @@ A daily practice app that makes the user measurably better at generating ideas, 
 
 ## 3. Architecture & stack
 
-**Decision:** Build a standard web app first, then make it mini-app-capable via MiniKit. Rationale: as of the April 9, 2026 Base App change, hosts increasingly treat apps as **standard web app + wallet** rather than a Farcaster-specific spec. MiniKit gives one codebase that runs in **both** Base App and Farcaster clients, so it's the safe primitive. Do **not** couple core logic to any single client's spec.
+**Decision (updated 2026-06-06):** Build with the Farcaster mini-app primitives directly — `@farcaster/miniapp-sdk` + Neynar infrastructure — from day 1. **No MiniKit / OnchainKit wrapper** (founder decision). Rationale: as of the April 9, 2026 Base App change, hosts increasingly treat apps as **standard web app + wallet**, and Base App hosts standard Farcaster mini apps — so the Farcaster SDK is the common primitive and MiniKit is a wrapper layer we don't need. Do **not** couple core logic to any single client's spec.
 
 Recommended stack (adjust if you have strong reasons):
 - **Framework:** Next.js (App Router) + TypeScript.
 - **Styling:** Tailwind CSS. Clean, calm, fast. This is a contemplative tool, not a casino — restraint over confetti.
-- **Mini-app integration:** `@coinbase/onchainkit/minikit` (MiniKit) as the primary cross-client layer; `@farcaster/miniapp-sdk` where Farcaster-specific calls are needed. Call the readiness hook (`useMiniKit` → `setFrameReady()` / `sdk.actions.ready()`) or users get an infinite splash.
-- **Auth:** Sign In With Farcaster (SIWF) via MiniKit / AuthKit (Privy is an acceptable wrapper). Allow an email/passkey fallback so the practice works for non-Farcaster users too (Phase 1 widens the door).
-- **Database:** Postgres (Supabase or Neon are fine). Persistent server-side storage for the archive is essential — the compounding archive is the core retention asset.
+- **Mini-app integration:** `@farcaster/miniapp-sdk` as the cross-client layer (runs in both Farcaster clients and Base App); Neynar (`@neynar/nodejs-sdk` + APIs) for Farcaster infra — user data, notifications, manifest tooling. Call `sdk.actions.ready()` once the app is loaded or users get an infinite splash.
+- **Auth:** Sign In With Farcaster (SIWF) via Neynar (SIWN) or AuthKit (Privy is an acceptable wrapper). Allow an email/passkey fallback so the practice works for non-Farcaster users too (Phase 1 widens the door).
+- **Database:** Postgres on **Neon** (decided 2026-06-06; serverless, native Vercel integration, pgvector available for future clustering). Persistent server-side storage for the archive is essential — the compounding archive is the core retention asset.
 - **AI coach:** Anthropic Claude API (server-side; never expose keys client-side). See §6.
 - **Hosting:** Vercel.
 - **Runtime:** Node.js ≥ 22.11.0 (required by the Farcaster mini-app tooling).
 
-**Fast scaffold options** (pick one, then strip to our scope):
-- `npx @neynar/create-farcaster-mini-app@latest` — scaffolds auth, wallet, notifications, manifest signing, analytics.
-- MiniKit CLI / `builders-garden/base-minikit-starter` template.
+**Scaffold (decided 2026-06-06):**
+- `npx @neynar/create-farcaster-mini-app@latest` — scaffolds auth, wallet, notifications, manifest signing, analytics. Strip to our scope after generating (remove wallet/token surfaces we don't need in V1).
 
 ---
 
@@ -104,12 +103,12 @@ Three blended sources:
 - Designed to **fade**: as a user's habit stabilizes (e.g. consistent 60+ day practice), dial down external nudges so intrinsic value carries retention.
 
 ### 5.7 Opt-in sharing (the only social surface in V1)
-- After completing a list, the user may share **one curated idea** (their choice) as a cast via the compose-cast action (`useComposeCast` / SDK). 
+- After completing a list, the user may share **one curated idea** (their choice) as a cast via the compose-cast action (`sdk.actions.composeCast()`). 
 - Raw 10-idea lists are **never** shared or made public in V1.
 - This is the acquisition loop AND faithful to Altucher's "be a transmitter" principle.
 
 ### 5.8 Notifications (re-engagement, humane)
-- A single, gentle daily reminder at a user-chosen time via the mini-app notification API (`useNotification`) + push where available.
+- A single, gentle daily reminder at a user-chosen time via mini-app notifications (Neynar manages notification tokens/delivery) + push where available.
 - Frequency-capped, no guilt language, easily tunable/disable-able.
 
 ### Explicitly OUT of scope for V1
@@ -165,22 +164,16 @@ Privacy: ideas are private by default. Only an explicitly shared single idea is 
 
 ## 9. Reference documentation (fetch these before building the relevant parts)
 
-**Farcaster Mini Apps (LLM-friendly docs):**
+**Farcaster Mini Apps (primary cross-client layer; LLM-friendly docs):**
 - Getting started: https://miniapps.farcaster.xyz/docs/getting-started
 - Specification (manifest, `fc:miniapp` meta tag, embeds): https://miniapps.farcaster.xyz/docs/specification
 - Publishing & verification: https://miniapps.farcaster.xyz/docs/guides/publishing
 - SDK package: `@farcaster/miniapp-sdk` (remember `sdk.actions.ready()`)
 - Sign In With Farcaster / AuthKit: https://docs.farcaster.xyz/
 
-**Base / MiniKit (primary cross-client layer; important post-April-2026 shift):**
-- MiniKit overview: https://docs.base.org/builderkits/minikit/overview
-- MiniKit quickstart: https://docs.base.org/builderkits/minikit/quickstart
-- MiniKit debugging: https://docs.base.org/builderkits/minikit/debugging
-- Base wallet mini apps: https://docs.base.org/wallet-app/mini-apps
+**Base App (host-compatibility only — we do NOT use MiniKit/OnchainKit):**
+- Base wallet mini apps (how Base App hosts mini apps): https://docs.base.org/wallet-app/mini-apps
 - "Thinking social" design guide: https://docs.base.org/builderkits/minikit/thinking-social
-- OnchainKit AI prompting guide (useful for this build): https://docs.base.org/builderkits/onchainkit/guides/ai-prompting-guide
-- Base Builder MCP (optional — gives an agent live access to Base docs/codegen): https://github.com/base/base-builder-mcp
-- Coinbase Developer Portal (API keys): https://portal.cdp.coinbase.com/
 
 **Neynar (Farcaster infra / fastest scaffold):**
 - **Neynar MCP server** — use it throughout the build for live Farcaster/Neynar docs and API reference instead of relying on training data.
@@ -200,12 +193,12 @@ Privacy: ideas are private by default. Only an explicitly shared single idea is 
 
 ## 10. Build milestones (do in order; confirm each runs before moving on)
 
-1. **Skeleton:** Next.js + TS + Tailwind app; DB connected; deploys to Vercel. No mini-app yet — just a working web app you can open in a browser.
+1. **Skeleton:** scaffold via `npx @neynar/create-farcaster-mini-app@latest` and strip to scope (mini-app-capable from day 1 — manifest + `sdk.actions.ready()` present from the start); Neon Postgres connected; deploys to Vercel; opens as a normal web app in a browser.
 2. **Practice loop:** prompt display, idea entry (one per line), completion, persistence to DB. Ramp logic (5→10). Zero judgment during entry.
 3. **AI coach:** server-side Claude call computing the four muscle-metrics + one reflection string as structured JSON; reflection screen renders it. Guardrails enforced.
 4. **Archive + progress:** searchable archive, theme tagging/clustering, resurfacing; progress charts over time.
 5. **Streak scaffold:** humane streak with freezes/earn-backs; fade logic stubbed; humane reminder notification.
-6. **Mini-app layer:** integrate MiniKit; signed `farcaster.json` manifest; readiness hook; SIWF auth (+ email/passkey fallback); verify it loads inside Base App and a Farcaster client. Target 424×695 web viewport.
+6. **Mini-app completion:** finalize the layer scaffolded in milestone 1 — signed `farcaster.json` manifest verified; SIWF/SIWN auth (+ email/passkey fallback); notifications wired via Neynar; verify it loads inside Base App and a Farcaster client. Target 424×695 web viewport.
 7. **Opt-in sharing:** compose-cast of a single curated idea; dynamic share/embed preview. Confirm raw lists are never exposed.
 8. **Polish + instrument:** calm UI pass; analytics for the Phase-1 gate metric (**Day-60 practice retention**) and the 30–90 day funnel.
 

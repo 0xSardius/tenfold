@@ -22,13 +22,13 @@ Remote: https://github.com/0xSardius/tenfold.git
 
 - **Framework:** Next.js (App Router) + TypeScript
 - **Styling:** Tailwind CSS — calm/contemplative, "restraint over confetti"
-- **Mini-app layer:** `@coinbase/onchainkit/minikit` (MiniKit) as the primary cross-client layer; `@farcaster/miniapp-sdk` for Farcaster-specific calls. You **must** call the readiness hook (`useMiniKit` → `setFrameReady()` / `sdk.actions.ready()`) or users get an infinite splash.
-- **Auth:** Sign In With Farcaster (SIWF) via MiniKit / AuthKit, **with an email/passkey fallback** so the practice works without a crypto wallet.
-- **Database:** Postgres (Supabase or Neon). Real server-side persistence is required — the compounding archive is the core retention asset, not optional.
+- **Mini-app layer:** `@farcaster/miniapp-sdk` directly + Neynar infra (`@neynar/nodejs-sdk` + APIs) — **no MiniKit/OnchainKit** (founder decision 2026-06-06; the Farcaster SDK is the common primitive and runs in both Farcaster clients and Base App). You **must** call `sdk.actions.ready()` once loaded or users get an infinite splash.
+- **Auth:** Sign In With Farcaster (SIWF) via Neynar (SIWN) or AuthKit, **with an email/passkey fallback** so the practice works without a crypto wallet.
+- **Database:** Postgres on **Neon** (decided 2026-06-06). Real server-side persistence is required — the compounding archive is the core retention asset, not optional.
 - **AI coach:** Anthropic Claude API, **server-side only** (never expose keys client-side). Use structured JSON outputs; keep prompts versioned in the repo.
 - **Hosting:** Vercel. **Runtime:** Node.js ≥ 22.11.0 (required by Farcaster mini-app tooling).
 
-Fast scaffold options (then strip to scope): `npx @neynar/create-farcaster-mini-app@latest`, or the MiniKit CLI / `builders-garden/base-minikit-starter` template.
+Scaffold (decided): `npx @neynar/create-farcaster-mini-app@latest`, then strip to scope — remove wallet/token surfaces not needed in V1.
 
 ## Hard product constraints (these override convenience — see PRD §4, §11)
 
@@ -43,12 +43,12 @@ These are not stylistic preferences; violating them breaks the method. Treat the
 
 ## Build order (PRD §10 — do in order, confirm each runs before moving on)
 
-1. Skeleton: Next.js + TS + Tailwind, DB connected, deploys to Vercel (plain web app, no mini-app yet).
+1. Skeleton: Neynar scaffold stripped to scope (mini-app-capable from day 1), Neon DB connected, deploys to Vercel.
 2. Practice loop: prompt display → idea entry (one per line) → completion → DB persistence; ramp logic (5→10); zero judgment during entry.
 3. AI coach: server-side Claude call computing the four muscle-metrics + one reflection string as structured JSON; reflection screen.
 4. Archive + progress: searchable archive, theme tagging/clustering, resurfacing; progress charts.
 5. Streak scaffold: humane streak with freezes/earn-backs; humane reminder notification.
-6. Mini-app layer: MiniKit, signed `farcaster.json` manifest, readiness hook, SIWF auth (+ fallback); verify it loads in Base App and a Farcaster client. Target 424×695 web viewport.
+6. Mini-app completion: signed `farcaster.json` manifest verified, SIWF/SIWN auth (+ fallback), notifications via Neynar; verify it loads in Base App and a Farcaster client. Target 424×695 web viewport.
 7. Opt-in sharing: compose-cast of a single curated idea; dynamic share/embed preview.
 8. Polish + instrument: calm UI pass; analytics for the Phase-1 gate metric (**Day-60 retention**).
 
@@ -62,8 +62,8 @@ This ecosystem shifted in early 2026; prefer official docs over training data. T
 
 - **Neynar MCP server:** the project uses the Neynar MCP for live Farcaster/Neynar docs and API reference. **Use it throughout** — prefer it over training data for anything Farcaster-related (SIWF, casts, manifest, notifications, user data). If its tools aren't available in the session, tell the user so they can reconnect it, and fall back to https://docs.neynar.com.
 - Farcaster Mini Apps: https://miniapps.farcaster.xyz/docs/getting-started · spec: https://miniapps.farcaster.xyz/docs/specification
-- MiniKit: https://docs.base.org/builderkits/minikit/overview · quickstart: https://docs.base.org/builderkits/minikit/quickstart
+- Base App host compatibility: https://docs.base.org/wallet-app/mini-apps
 - Claude API: https://docs.claude.com/en/api/overview
 - Neynar: https://docs.neynar.com
 
-Note the April 9 2026 Base App change: hosts increasingly treat apps as **standard web app + wallet** rather than a Farcaster-specific spec. Do not couple core logic to any single client's spec — that's why MiniKit is the chosen primitive.
+Note the April 9 2026 Base App change: hosts increasingly treat apps as **standard web app + wallet** rather than a Farcaster-specific spec. Do not couple core logic to any single client's spec — `@farcaster/miniapp-sdk` is the common primitive (Base App hosts standard Farcaster mini apps); MiniKit/OnchainKit is deliberately not used.

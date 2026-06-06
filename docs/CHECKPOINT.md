@@ -1,6 +1,6 @@
 # CHECKPOINT — Tenfold
 
-**Last updated:** 2026-06-03
+**Last updated:** 2026-06-06
 
 ## Current state
 
@@ -14,17 +14,18 @@
 - `CLAUDE.md` created: stack, hard constraints, milestone order, reference docs
 - Git initialized on `main`, remote `https://github.com/0xSardius/tenfold.git`, initial commit pushed
 - Neynar MCP server registered and healthy (`claude mcp list` → ✓ Connected)
+- **Architecture decisions locked (2026-06-06):** DB = **Neon**; **no MiniKit/OnchainKit** — use `@farcaster/miniapp-sdk` + Neynar from day 1; scaffold = `npx @neynar/create-farcaster-mini-app@latest` then strip to scope. PRD §3/§9/§10 and CLAUDE.md updated to match.
+- Environment verified: Node v22.16.0 ✓, npm 11.4.2, Vercel CLI 50.1.6
 
 ## Next steps
 
 1. **Verify Neynar MCP tools load** in the new session (server was added mid-session; needed a restart to appear). If absent, tell the founder.
-2. **Milestone 1 — Skeleton:** scaffold Next.js (App Router) + TypeScript + Tailwind; connect Postgres (Supabase or Neon — founder hasn't picked yet); deploy to Vercel. Consider `npx @neynar/create-farcaster-mini-app@latest` then strip to scope, or scaffold plain and add MiniKit at milestone 6.
-3. Confirm milestone 1 runs end-to-end before starting milestone 2 (practice loop).
+2. **Milestone 1 — Skeleton:** run the Neynar scaffold, strip to scope (remove wallet/token surfaces), connect Neon Postgres, deploy to Vercel. Verify output directory structure with `ls` before writing code (global rule).
+3. Founder prerequisites for milestone 1: Neon account/project, Vercel project link. (Anthropic API key not needed until milestone 3.)
+4. Confirm milestone 1 runs end-to-end before starting milestone 2 (practice loop).
 
 ## Open decisions (founder)
 
-- DB provider: Supabase vs Neon
-- Scaffold path: Neynar scaffold-then-strip vs plain create-next-app
 - Reflection timing (immediate vs next morning) — build behind a flag, PRD §5.3
 - Bad-day rigidity (fewer than target allowed?) — Roadmap open decision
 
