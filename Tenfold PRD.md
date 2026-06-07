@@ -45,7 +45,7 @@ Recommended stack (adjust if you have strong reasons):
 - **Styling:** Tailwind CSS. Clean, calm, fast. This is a contemplative tool, not a casino — restraint over confetti.
 - **Mini-app integration:** `@farcaster/miniapp-sdk` as the cross-client layer (runs in both Farcaster clients and Base App); Neynar (`@neynar/nodejs-sdk` + APIs) for Farcaster infra — user data, notifications, manifest tooling. Call `sdk.actions.ready()` once the app is loaded or users get an infinite splash.
 - **Auth:** Sign In With Farcaster (SIWF) via Neynar (SIWN) or AuthKit (Privy is an acceptable wrapper). Allow an email/passkey fallback so the practice works for non-Farcaster users too (Phase 1 widens the door).
-- **Database:** Postgres on **Neon** (decided 2026-06-06; serverless, native Vercel integration, pgvector available for future clustering). Persistent server-side storage for the archive is essential — the compounding archive is the core retention asset.
+- **Database:** Postgres on **Neon** with **Drizzle ORM** (decided 2026-06-06; serverless, native Vercel integration, pgvector available for future clustering). Persistent server-side storage for the archive is essential — the compounding archive is the core retention asset.
 - **AI coach:** Anthropic Claude API (server-side; never expose keys client-side). See §6.
 - **Hosting:** Vercel.
 - **Runtime:** Node.js ≥ 22.11.0 (required by the Farcaster mini-app tooling).

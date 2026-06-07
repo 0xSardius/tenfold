@@ -24,7 +24,7 @@ Remote: https://github.com/0xSardius/tenfold.git
 - **Styling:** Tailwind CSS — calm/contemplative, "restraint over confetti"
 - **Mini-app layer:** `@farcaster/miniapp-sdk` directly + Neynar infra (`@neynar/nodejs-sdk` + APIs) — **no MiniKit/OnchainKit** (founder decision 2026-06-06; the Farcaster SDK is the common primitive and runs in both Farcaster clients and Base App). You **must** call `sdk.actions.ready()` once loaded or users get an infinite splash.
 - **Auth:** Sign In With Farcaster (SIWF) via Neynar (SIWN) or AuthKit, **with an email/passkey fallback** so the practice works without a crypto wallet.
-- **Database:** Postgres on **Neon** (decided 2026-06-06). Real server-side persistence is required — the compounding archive is the core retention asset, not optional.
+- **Database:** Postgres on **Neon** with **Drizzle ORM** (decided 2026-06-06). Real server-side persistence is required — the compounding archive is the core retention asset, not optional.
 - **AI coach:** Anthropic Claude API, **server-side only** (never expose keys client-side). Use structured JSON outputs; keep prompts versioned in the repo.
 - **Hosting:** Vercel. **Runtime:** Node.js ≥ 22.11.0 (required by Farcaster mini-app tooling).
 

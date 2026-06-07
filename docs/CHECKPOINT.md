@@ -14,7 +14,7 @@
 - `CLAUDE.md` created: stack, hard constraints, milestone order, reference docs
 - Git initialized on `main`, remote `https://github.com/0xSardius/tenfold.git`, initial commit pushed
 - Neynar MCP server registered and healthy (`claude mcp list` → ✓ Connected)
-- **Architecture decisions locked (2026-06-06):** DB = **Neon**; **no MiniKit/OnchainKit** — use `@farcaster/miniapp-sdk` + Neynar from day 1; scaffold = `npx @neynar/create-farcaster-mini-app@latest` then strip to scope. PRD §3/§9/§10 and CLAUDE.md updated to match.
+- **Architecture decisions locked (2026-06-06):** DB = **Neon + Drizzle ORM**; **no MiniKit/OnchainKit** — use `@farcaster/miniapp-sdk` + Neynar from day 1; scaffold = `npx @neynar/create-farcaster-mini-app@latest` then strip to scope. PRD §3/§9/§10 and CLAUDE.md updated to match.
 - Environment verified: Node v22.16.0 ✓, npm 11.4.2, Vercel CLI 50.1.6
 
 ## Next steps
