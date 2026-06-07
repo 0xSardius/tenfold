@@ -61,6 +61,7 @@ Core entities: **User** (incl. nullable `fid`, ramp state, settings), **Prompt**
 This ecosystem shifted in early 2026; prefer official docs over training data. The Farcaster and Base docs are LLM-friendly — pull them into context before writing SDK/manifest/API code.
 
 - **Neynar MCP server:** the project uses the Neynar MCP for live Farcaster/Neynar docs and API reference. **Use it throughout** — prefer it over training data for anything Farcaster-related (SIWF, casts, manifest, notifications, user data). If its tools aren't available in the session, tell the user so they can reconnect it, and fall back to https://docs.neynar.com.
+- **Local doc dumps (searchable offline):** `docs/farcaster-miniapps-docs.md` (full Farcaster Mini Apps docs) and `docs/neynar-docs-full.md` (full Neynar docs, ~58k lines). Grep these for SDK/API details before reaching for the web; they're too large to read whole.
 - Farcaster Mini Apps: https://miniapps.farcaster.xyz/docs/getting-started · spec: https://miniapps.farcaster.xyz/docs/specification
 - Base App host compatibility: https://docs.base.org/wallet-app/mini-apps
 - Claude API: https://docs.claude.com/en/api/overview
